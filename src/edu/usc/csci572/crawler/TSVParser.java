@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Set;
@@ -52,10 +53,13 @@ public class TSVParser extends AbstractParser {
             xhtml.startElement("table");
             String line;
             
-            String headers[] = {"postedDate", "location", "department", "title", "salary", "start", "duration", 
+            String headers[] = {"postedDate", "location", "department", "title", "salary","dummy", "start", "duration", 
             		"jobtype", "applications", "company", "contactPerson", "phoneNumber", "faxNumber", "location", 
             		"latitude", "longitude", "firstSeenDate", "url", "lastSeenDate"};
             xhtml.startElement("tr");
+            
+            PrintWriter out = new PrintWriter("count.txt", "UTF-8");
+            out.println("head: " + headers.length);
             for(int i=0; i<headers.length; i++) {
             	xhtml.startElement("th");
             	xhtml.characters(headers[i]);
@@ -66,6 +70,7 @@ public class TSVParser extends AbstractParser {
             	xhtml.startElement("tr");
             	
             	String[] columns = line.split("\t");
+            	out.println(columns.length);
             	for(int i=0; i<columns.length; i++) {
             		xhtml.startElement("td");
             		xhtml.characters(columns[i]);
@@ -75,7 +80,7 @@ public class TSVParser extends AbstractParser {
             	xhtml.endElement("tr");
             }
             xhtml.endElement("table");
-
+            out.close();
             xhtml.endDocument();
         } finally {
             reader.close();

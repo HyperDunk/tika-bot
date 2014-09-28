@@ -16,25 +16,73 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
-import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
-import org.apache.tika.sax.BodyContentHandler;
-import org.apache.tika.sax.TeeContentHandler;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
 public class Crawler {
 
-	public static void main(String args[]) throws IOException, TikaException,
-			SAXException, TransformerConfigurationException {
+	String inputPath = null;
+	String xhtmlOutputPath = null;
+	String jsonOutputPath = null;
+
+	public void parseCommand(String args[]) {
+
+		for (int i = 0; i < args.length; i = i + 2) {
+			if (args[i].equals("-i")) {
+				inputPath = args[i + 1];
+			} else if (args[i].equals("-xo")) {
+				xhtmlOutputPath = args[i + 1];
+			} else if (args[i].equals("-jo")) {
+				jsonOutputPath = args[i + 1];
+			}
+		}
+
+		if (inputPath == null || xhtmlOutputPath == null
+				|| jsonOutputPath == null) {
+			System.out.println("Incomplete or incorrect input command");
+			System.exit(0);
+		}
+	}
+
+	public void convertTSVtoXHTML(String tsvFilePath, String fileName)
+			throws TransformerConfigurationException, IOException,
+			SAXException, TikaException {
 
 		InputStream is = null;
-		OutputStream output = null;
+		OutputStream xhtmlOutput = null;
 
-		String datasetPath = "C:/Users/Aakarsh/Google Drive/USC-StudyMaterials/CSCI572-IR/Assignments/Assignment1/workspace/HW1/data-set/";
+		try {
+			File doc = new File(tsvFilePath);
+			xhtmlOutput = new FileOutputStream(this.xhtmlOutputPath + "/"
+					+ fileName + ".xhtml");
 
-		File folder = new File(datasetPath);
+			ContentHandler handler = getTransformerHandler(xhtmlOutput, "XML",
+					"UTF-8", true);
+			ParseContext context = new ParseContext();
+			context.set(Locale.class, Locale.ENGLISH);
+
+			is = TikaInputStream.get(doc);
+
+			Parser tsvParser = new TSVParser();
+			tsvParser.parse(is, handler, new Metadata(), context);
+		} finally {
+			if (is != null) {
+				is.close();
+			}
+			xhtmlOutput.close();
+		}
+	}
+	
+	public void convertXHTMLtoJSON(String xhtmlFilePath, String fileName) {
+		
+	}	
+	
+	public void crawl() throws TransformerConfigurationException, IOException,
+			SAXException, TikaException {
+
+		File folder = new File(this.inputPath);
 		for (final File fileEntry : folder.listFiles()) {
 			String filePath, fileName;
 			if (fileEntry.isDirectory()) {
@@ -42,30 +90,11 @@ public class Crawler {
 			} else {
 				filePath = fileEntry.getPath();
 				fileName = fileEntry.getName();
-				fileName = fileName.substring(0,fileName.length()-4);
+				fileName = fileName.substring(0, fileName.length() - 4);
 
-				try {
-					File doc = new File(filePath);
-					output = new FileOutputStream("C:/Users/Aakarsh/Google Drive/USC-StudyMaterials/CSCI572-IR/Assignments/Assignment1/workspace/HW1/output/"+fileName+".xhtml");
-
-					ContentHandler handler = getTransformerHandler(output,
-							"XML", "UTF-8", true);
-					ParseContext context = new ParseContext();
-					context.set(Locale.class, Locale.ENGLISH);
-
-					is = TikaInputStream.get(doc);
-
-					Parser tsvParser = new TSVParser();
-					tsvParser.parse(is, handler, new Metadata(), context);
-				} finally {
-					if (is != null) {
-						is.close();
-					}
-					output.close();
-				}
+				convertTSVtoXHTML(filePath, fileName);
 			}
 		}
-
 	}
 
 	/**
@@ -100,6 +129,16 @@ public class Crawler {
 		}
 		handler.setResult(new StreamResult(output));
 		return handler;
+	}
+
+	public static void main(String args[]) throws IOException, TikaException,
+			SAXException, TransformerConfigurationException {
+
+		Crawler crawlApp = new Crawler();
+
+		crawlApp.parseCommand(args);
+		crawlApp.crawl();
+
 	}
 
 }
