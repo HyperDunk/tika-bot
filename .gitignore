@@ -1,2 +1,6 @@
-output/
+json-output/
+xhtml-output/
 data-set/
+bin/
+.classpath
+.project
