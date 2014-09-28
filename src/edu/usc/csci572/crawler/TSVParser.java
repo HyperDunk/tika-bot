@@ -53,7 +53,7 @@ public class TSVParser extends AbstractParser {
             xhtml.startElement("table");
             String line;
             
-            String headers[] = {"postedDate", "location", "department", "title", "salary", "start", "duration", 
+            String headers[] = {"postedDate", "location", "department", "title", "salary","dummy", "start", "duration", 
             		"jobtype", "applications", "company", "contactPerson", "phoneNumber", "faxNumber", "location", 
             		"latitude", "longitude", "firstSeenDate", "url", "lastSeenDate"};
             xhtml.startElement("tr");
