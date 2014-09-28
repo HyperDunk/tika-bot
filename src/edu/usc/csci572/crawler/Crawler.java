@@ -7,6 +7,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Locale;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.sax.SAXTransformerFactory;
@@ -75,8 +78,45 @@ public class Crawler {
 		}
 	}
 	
+	
+	private static void parseXHTML(InputStream is) {
+		// TODO Auto-generated method stub
+		JSONTableContentHandler jsonTableContentHandler = new JSONTableContentHandler();
+		SAXParserFactory spf = SAXParserFactory.newInstance();
+		spf.setNamespaceAware(true);
+		try {
+			SAXParser saxParser = spf.newSAXParser();
+			try {
+				saxParser.parse(is, jsonTableContentHandler);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			jsonTableContentHandler.serializeJSON();
+		} catch (ParserConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	public void convertXHTMLtoJSON(String xhtmlFilePath, String fileName) {
-		
+		String datasetPath = "/output/";
+		InputStream is = null;
+		OutputStream output = null;
+
+		try {
+			// i = 1;
+			File doc = new File("output/output.xhtml");
+			// output = new FileOutputStream("json/" + doc + i
+			// + ".json");
+			// i++;
+			is = TikaInputStream.get(doc);
+			parseXHTML(is);
+		} catch (Exception e) {
+		}
 	}	
 	
 	public void crawl() throws TransformerConfigurationException, IOException,
