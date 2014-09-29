@@ -63,8 +63,6 @@ public class TSVParser extends AbstractParser {
 					"firstSeenDate", "url", "lastSeenDate" };
 			xhtml.startElement("tr");
 
-			PrintWriter out = new PrintWriter("count.txt", "UTF-8");
-			out.println("head: " + headers.length);
 			for (int i = 0; i < headers.length; i++) {
 				xhtml.startElement("th");
 				xhtml.characters(headers[i]);
@@ -75,7 +73,6 @@ public class TSVParser extends AbstractParser {
 				xhtml.startElement("tr");
 
 				String[] columns = line.split("\t");
-				out.println(columns.length);
 				for (int i = 0; i < columns.length; i++) {
 					xhtml.startElement("td");
 					xhtml.characters(columns[i]);
@@ -85,7 +82,6 @@ public class TSVParser extends AbstractParser {
 				xhtml.endElement("tr");
 			}
 			xhtml.endElement("table");
-			out.close();
 			xhtml.endDocument();
 		} finally {
 			reader.close();

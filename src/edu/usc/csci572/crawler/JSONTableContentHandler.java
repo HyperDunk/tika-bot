@@ -1,5 +1,6 @@
 package edu.usc.csci572.crawler;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -170,14 +171,15 @@ public class JSONTableContentHandler extends DefaultHandler {
 		}
 	}
 
-	void serializeJSON() {
+	void serializeJSON(String jsonOutputPath, String fileName) {
 		int i = 0;
 		for (JobsData jobs : jobsDataList) {
-		//	System.out.println(jobs);
 			i++;
 			Writer writer;
 			try {
-				writer = new FileWriter("json/Output-" + i + ".json");
+				File file = new File(jsonOutputPath+"/"+fileName);
+				file.mkdirs();
+				writer = new FileWriter(jsonOutputPath+"/"+fileName+"/" + fileName + "-" + i + ".json");
 				Gson gson = new GsonBuilder().setPrettyPrinting().create();
 				gson.toJson(jobs, writer);
 				writer.close();

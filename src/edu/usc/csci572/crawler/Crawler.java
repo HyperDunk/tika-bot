@@ -49,13 +49,12 @@ public class Crawler {
 		}
 	}
 
-	public void convertTSVtoXHTML(String tsvFilePath, String fileName)
+	public String convertTSVtoXHTML(String tsvFilePath, String fileName)
 			throws TransformerConfigurationException, IOException,
 			SAXException, TikaException {
 
 		InputStream is = null;
 		OutputStream xhtmlOutput = null;
-
 		try {
 			File doc = new File(tsvFilePath);
 			xhtmlOutput = new FileOutputStream(this.xhtmlOutputPath + "/"
@@ -76,10 +75,11 @@ public class Crawler {
 			}
 			xhtmlOutput.close();
 		}
+		return this.xhtmlOutputPath + "/" + fileName + ".xhtml";
 	}
 	
 	
-	private static void parseXHTML(InputStream is) {
+	private void parseXHTML(InputStream is, String fileName) {
 		// TODO Auto-generated method stub
 		JSONTableContentHandler jsonTableContentHandler = new JSONTableContentHandler();
 		SAXParserFactory spf = SAXParserFactory.newInstance();
@@ -92,7 +92,7 @@ public class Crawler {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			jsonTableContentHandler.serializeJSON();
+			jsonTableContentHandler.serializeJSON(this.jsonOutputPath, fileName);
 		} catch (ParserConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -102,20 +102,15 @@ public class Crawler {
 		}
 	}
 	
-	public void convertXHTMLtoJSON(String xhtmlFilePath, String fileName) {
-		String datasetPath = "/output/";
-		InputStream is = null;
-		OutputStream output = null;
+	public void convertXHTMLtoJSON(String xhtmlFilePath, String fileName) {		
+		InputStream is = null;		
 
 		try {
-			// i = 1;
-			File doc = new File("output/output.xhtml");
-			// output = new FileOutputStream("json/" + doc + i
-			// + ".json");
-			// i++;
+			File doc = new File(xhtmlFilePath);
 			is = TikaInputStream.get(doc);
-			parseXHTML(is);
+			parseXHTML(is, fileName);
 		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}	
 	
@@ -132,7 +127,9 @@ public class Crawler {
 				fileName = fileEntry.getName();
 				fileName = fileName.substring(0, fileName.length() - 4);
 
-				convertTSVtoXHTML(filePath, fileName);
+				String xhtmlFilePath = convertTSVtoXHTML(filePath, fileName);
+				
+				convertXHTMLtoJSON(xhtmlFilePath, fileName);
 			}
 		}
 	}
