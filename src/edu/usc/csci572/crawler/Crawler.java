@@ -39,6 +39,10 @@ public class Crawler {
 				xhtmlOutputPath = args[i + 1];
 			} else if (args[i].equals("-jo")) {
 				jsonOutputPath = args[i + 1];
+			} else if(args[i].equals("-d")) {
+				if(Integer.parseInt(args[i+1]) == 1) {
+					JSONTableContentHandler.deduplication = true;
+				}			
 			}
 		}
 
@@ -79,7 +83,7 @@ public class Crawler {
 	}
 	
 	
-	private void parseXHTML(InputStream is, String fileName) {
+	private void parseXHTML(InputStream is) {
 		// TODO Auto-generated method stub
 		JSONTableContentHandler jsonTableContentHandler = new JSONTableContentHandler();
 		SAXParserFactory spf = SAXParserFactory.newInstance();
@@ -92,7 +96,6 @@ public class Crawler {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			jsonTableContentHandler.serializeJSON(this.jsonOutputPath, fileName);
 		} catch (ParserConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -104,11 +107,14 @@ public class Crawler {
 	
 	public void convertXHTMLtoJSON(String xhtmlFilePath, String fileName) {		
 		InputStream is = null;		
+		
+		JSONTableContentHandler.jsonOutputPath = this.jsonOutputPath;
+		JSONTableContentHandler.fileName = fileName;
 
 		try {
 			File doc = new File(xhtmlFilePath);
 			is = TikaInputStream.get(doc);
-			parseXHTML(is, fileName);
+			parseXHTML(is);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -175,7 +181,7 @@ public class Crawler {
 
 		crawlApp.parseCommand(args);
 		crawlApp.crawl();
-
+		System.out.println("Count: " + JSONTableContentHandler.totalCount);
 	}
 
 }
