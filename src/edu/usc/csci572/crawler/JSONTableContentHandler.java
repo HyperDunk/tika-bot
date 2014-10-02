@@ -5,13 +5,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
-import org.apache.tika.metadata.Metadata;
 import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -19,7 +15,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class JSONTableContentHandler extends DefaultHandler {
-	private Metadata metadata;
 	private JobsData jData;
 	private String currentElement = "";
 	private int tdCount;
@@ -37,12 +32,6 @@ public class JSONTableContentHandler extends DefaultHandler {
 			"jobtype", "applications", "company", "contactPerson",
 			"phoneNumber", "faxNumber", "location2", "latitude", "longitude",
 			"firstSeenDate", "url", "lastSeenDate" };
-
-	public JSONTableContentHandler(ContentHandler handler, Metadata metadata) {
-		// TODO Auto-generated constructor stub
-		this.metadata = metadata;
-
-	}
 
 	public JSONTableContentHandler() {
 		// TODO Auto-generated constructor stub
@@ -105,7 +94,7 @@ public class JSONTableContentHandler extends DefaultHandler {
 			throws SAXException {
 		// TODO Auto-generated method stub
 		String currentString = new String(ch, start, length);
-		if (currentString == null)
+		if (currentString.equals(null))
 			currentString = "";
 		// System.out.println("Characters " + currentString);
 		switch (currentTDElement) {
@@ -177,12 +166,12 @@ public class JSONTableContentHandler extends DefaultHandler {
 		}
 	}
 
-	void serializeJSON(JobsData job) {
+	public static void serializeJSON(JobsData job) {
 		if (deduplication) {
 			if (dedupMap.contains(job.getTitle() + job.getCompany()
 					+ job.getDepartment() + job.getApplications()
 					+ job.getJobtype() + job.getLocation())) {
-				System.out.println("Dup: " + fileName);
+			//	System.out.println("Dup: " + fileName);
 				return;
 			} else {
 				dedupMap.add(job.getTitle() + job.getCompany()

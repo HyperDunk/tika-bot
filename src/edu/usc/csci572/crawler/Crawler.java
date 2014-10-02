@@ -59,6 +59,10 @@ public class Crawler {
 
 		InputStream is = null;
 		OutputStream xhtmlOutput = null;
+		
+		// Added 
+		JSONTableContentHandler.jsonOutputPath = this.jsonOutputPath;
+		JSONTableContentHandler.fileName = fileName;
 		try {
 			File doc = new File(tsvFilePath);
 			xhtmlOutput = new FileOutputStream(this.xhtmlOutputPath + "/"
@@ -135,7 +139,7 @@ public class Crawler {
 
 				String xhtmlFilePath = convertTSVtoXHTML(filePath, fileName);
 				
-				convertXHTMLtoJSON(xhtmlFilePath, fileName);
+				//convertXHTMLtoJSON(xhtmlFilePath, fileName);
 			}
 		}
 	}
