@@ -54,7 +54,7 @@ public class Crawler {
 		}
 	}
 
-	public void convertTSVtoXHTML(String tsvFilePath, String fileName,
+	public void convertTSVtoXHTMLandJSON(String tsvFilePath, String fileName,
 			ContentHandler jsonContentHandler)
 			throws TransformerConfigurationException, IOException,
 			SAXException, TikaException {
@@ -113,7 +113,8 @@ public class Crawler {
 			SAXException, TikaException {
 
 		File folder = new File(this.inputPath);
-		ContentHandler jsonContentHandler = new JSONTableContentHandler();
+		JSONTableContentHandler jsonHandler = new JSONTableContentHandler();
+		ContentHandler jsonContentHandler = jsonHandler; 
 		for (final File fileEntry : folder.listFiles()) {
 			String filePath, fileName;
 			if (fileEntry.isDirectory()) {
@@ -123,9 +124,11 @@ public class Crawler {
 				fileName = fileEntry.getName();
 				fileName = fileName.substring(0, fileName.length() - 4);
 
-				convertTSVtoXHTML(filePath, fileName, jsonContentHandler);
+				convertTSVtoXHTMLandJSON(filePath, fileName, jsonContentHandler);
 			}
 		}
+		jsonHandler.getOutReport().close();
+		jsonHandler.getOutCount().close();
 	}
 
 	/**
@@ -168,8 +171,7 @@ public class Crawler {
 		Crawler crawlApp = new Crawler();
 
 		crawlApp.parseCommand(args);
-		crawlApp.crawl();
-		System.out.println("Count: " + JSONTableContentHandler.totalCount);
+		crawlApp.crawl();		
 	}
 
 }

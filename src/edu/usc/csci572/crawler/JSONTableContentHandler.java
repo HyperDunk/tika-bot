@@ -21,10 +21,12 @@ public class JSONTableContentHandler extends DefaultHandler {
 	private String currentElement = "";
 	private int tdCount;
 	private String currentTDElement = "";
-	public PrintWriter out = null;
+	private PrintWriter outReport = null;
+	private PrintWriter outCount = null;
 
 	private static int i = 0;
 	public static long totalCount = 0;
+	public static long actualCount = 0;
 	public static boolean deduplication = false;
 	public static HashSet<String> dedupMap = new HashSet<String>();
 	public static String jsonOutputPath;
@@ -35,12 +37,21 @@ public class JSONTableContentHandler extends DefaultHandler {
 			"jobtype", "applications", "company", "contactPerson",
 			"phoneNumber", "faxNumber", "location2", "latitude", "longitude",
 			"firstSeenDate", "url", "lastSeenDate" };
+	
+	public PrintWriter getOutReport() {
+		return this.outReport;
+	}
+	
+	public PrintWriter getOutCount() {
+		return this.outCount;
+	}
 
 	public JSONTableContentHandler() {
 		// TODO Auto-generated constructor stub
 
 		try {
-			out = new PrintWriter("report.txt");
+			outReport = new PrintWriter("report.txt");
+			outCount = new PrintWriter("count.txt");
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -59,22 +70,22 @@ public class JSONTableContentHandler extends DefaultHandler {
 
 	@Override
 	public void startDocument() throws SAXException {
-		// System.out.println("Start Doc");
 		jData = new JobsData();
 		i = 0;
+		actualCount = 0;
 	}
 
 	@Override
 	public void endDocument() throws SAXException {
-		// System.out.println("End Doc");
-		out.println(fileName + ". Count = " + i);
+		outCount.println(fileName + "\nCount = " + i);
+		outCount.println("Actual Count in the file: " + actualCount);
+		outCount.println("Overall Total Count: " + totalCount + "\n");
 	}
 
 	@Override
 	public void startElement(String uri, String localName, String qName,
 			Attributes attributes) throws SAXException {
 		// TODO Auto-generated method stub
-		// System.out.println("Start Element " + qName);
 		currentElement = qName;
 
 		switch (currentElement) {
@@ -95,7 +106,6 @@ public class JSONTableContentHandler extends DefaultHandler {
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {
 		// TODO Auto-generated method stub
-		// System.out.println("End Element " + qName);
 		currentElement = "";
 		currentTDElement = "";
 	}
@@ -178,18 +188,33 @@ public class JSONTableContentHandler extends DefaultHandler {
 	}
 
 	public void serializeJSON(JobsData job) {
+		actualCount++;
 		if (deduplication) {
-			if (dedupMap.contains(job.getTitle() + job.getCompany()
-					+ job.getDepartment() + job.getApplications()
-					+ job.getJobtype() + job.getLocation())) {
-				out.println("Dup: " + fileName + ". Title: " + job.getTitle());
+			if (dedupMap.contains(
+					job.getTitle() 
+					+ job.getCompany()
+					+ job.getDepartment() 
+					+ job.getApplications()
+					+ job.getJobtype() 
+					+ job.getLocation()					
+					+ job.getLatitude()
+					+ job.getLongitude()
+					)) {
+				outReport.println("Dup: " + fileName + ". Title: " + job.getTitle());
 				return;
 			} else {
-				dedupMap.add(job.getTitle() + job.getCompany()
-						+ job.getDepartment() + job.getApplications()
-						+ job.getJobtype() + job.getLocation());
+				dedupMap.add(
+						job.getTitle() 
+						+ job.getCompany()
+						+ job.getDepartment() 
+						+ job.getApplications()
+						+ job.getJobtype() 
+						+ job.getLocation()
+						+ job.getLatitude()
+						+ job.getLongitude()
+						);
 				totalCount++;
-			}
+			}			
 		} else {
 			totalCount++;
 		}
