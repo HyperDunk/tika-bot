@@ -21,6 +21,7 @@ import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
+import org.apache.tika.sax.TeeContentHandler;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
@@ -39,10 +40,10 @@ public class Crawler {
 				xhtmlOutputPath = args[i + 1];
 			} else if (args[i].equals("-jo")) {
 				jsonOutputPath = args[i + 1];
-			} else if(args[i].equals("-d")) {
-				if(Integer.parseInt(args[i+1]) == 1) {
+			} else if (args[i].equals("-d")) {
+				if (Integer.parseInt(args[i + 1]) == 1) {
 					JSONTableContentHandler.deduplication = true;
-				}			
+				}
 			}
 		}
 
@@ -53,14 +54,14 @@ public class Crawler {
 		}
 	}
 
-	public String convertTSVtoXHTML(String tsvFilePath, String fileName)
+	public void convertTSVtoXHTML(String tsvFilePath, String fileName,
+			ContentHandler jsonContentHandler)
 			throws TransformerConfigurationException, IOException,
 			SAXException, TikaException {
 
 		InputStream is = null;
 		OutputStream xhtmlOutput = null;
-		
-		// Added 
+
 		JSONTableContentHandler.jsonOutputPath = this.jsonOutputPath;
 		JSONTableContentHandler.fileName = fileName;
 		try {
@@ -68,8 +69,9 @@ public class Crawler {
 			xhtmlOutput = new FileOutputStream(this.xhtmlOutputPath + "/"
 					+ fileName + ".xhtml");
 
-			ContentHandler handler = getTransformerHandler(xhtmlOutput, "XML",
-					"UTF-8", true);
+			ContentHandler handler = new TeeContentHandler(
+					getTransformerHandler(xhtmlOutput, "XML", "UTF-8", true),
+					jsonContentHandler);
 			ParseContext context = new ParseContext();
 			context.set(Locale.class, Locale.ENGLISH);
 
@@ -83,10 +85,8 @@ public class Crawler {
 			}
 			xhtmlOutput.close();
 		}
-		return this.xhtmlOutputPath + "/" + fileName + ".xhtml";
 	}
-	
-	
+
 	private void parseXHTML(InputStream is) {
 		// TODO Auto-generated method stub
 		JSONTableContentHandler jsonTableContentHandler = new JSONTableContentHandler();
@@ -108,26 +108,12 @@ public class Crawler {
 			e.printStackTrace();
 		}
 	}
-	
-	public void convertXHTMLtoJSON(String xhtmlFilePath, String fileName) {		
-		InputStream is = null;		
-		
-		JSONTableContentHandler.jsonOutputPath = this.jsonOutputPath;
-		JSONTableContentHandler.fileName = fileName;
 
-		try {
-			File doc = new File(xhtmlFilePath);
-			is = TikaInputStream.get(doc);
-			parseXHTML(is);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}	
-	
 	public void crawl() throws TransformerConfigurationException, IOException,
 			SAXException, TikaException {
 
 		File folder = new File(this.inputPath);
+		ContentHandler jsonContentHandler = new JSONTableContentHandler();
 		for (final File fileEntry : folder.listFiles()) {
 			String filePath, fileName;
 			if (fileEntry.isDirectory()) {
@@ -137,9 +123,7 @@ public class Crawler {
 				fileName = fileEntry.getName();
 				fileName = fileName.substring(0, fileName.length() - 4);
 
-				String xhtmlFilePath = convertTSVtoXHTML(filePath, fileName);
-				
-				//convertXHTMLtoJSON(xhtmlFilePath, fileName);
+				convertTSVtoXHTML(filePath, fileName, jsonContentHandler);
 			}
 		}
 	}

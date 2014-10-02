@@ -1,9 +1,11 @@
 package edu.usc.csci572.crawler;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.HashSet;
 
@@ -19,6 +21,7 @@ public class JSONTableContentHandler extends DefaultHandler {
 	private String currentElement = "";
 	private int tdCount;
 	private String currentTDElement = "";
+	public PrintWriter out = null;
 
 	private static int i = 0;
 	public static long totalCount = 0;
@@ -35,6 +38,13 @@ public class JSONTableContentHandler extends DefaultHandler {
 
 	public JSONTableContentHandler() {
 		// TODO Auto-generated constructor stub
+
+		try {
+			out = new PrintWriter("report.txt");
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public void getAllJsons() {
@@ -57,6 +67,7 @@ public class JSONTableContentHandler extends DefaultHandler {
 	@Override
 	public void endDocument() throws SAXException {
 		// System.out.println("End Doc");
+		out.println(fileName + ". Count = " + i);
 	}
 
 	@Override
@@ -166,12 +177,12 @@ public class JSONTableContentHandler extends DefaultHandler {
 		}
 	}
 
-	public static void serializeJSON(JobsData job) {
+	public void serializeJSON(JobsData job) {
 		if (deduplication) {
 			if (dedupMap.contains(job.getTitle() + job.getCompany()
 					+ job.getDepartment() + job.getApplications()
 					+ job.getJobtype() + job.getLocation())) {
-			//	System.out.println("Dup: " + fileName);
+				out.println("Dup: " + fileName + ". Title: " + job.getTitle());
 				return;
 			} else {
 				dedupMap.add(job.getTitle() + job.getCompany()

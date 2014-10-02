@@ -74,7 +74,6 @@ public class TSVParser extends AbstractParser {
 					xhtml.startElement("td");
 					count++;
 					xhtml.characters(columns[i]);
-					fillJobsData(count, columns[i], jData);
 					xhtml.endElement("td");
 				}
 
@@ -84,81 +83,6 @@ public class TSVParser extends AbstractParser {
 			xhtml.endDocument();
 		} finally {
 			reader.close();
-		}
-
-	}
-
-	private void fillJobsData(int count, String currentString, JobsData jData) {
-		// TODO Auto-generated method stub
-		if (currentString.equals(null))
-			currentString = "";
-
-		switch (count) {
-		case 2:
-			jData.setLocation(currentString);
-			break;
-		case 1:
-			jData.setPostedDate(currentString);
-			break;
-		case 3:
-			jData.setDepartment(currentString);
-			break;
-		case 4:
-			jData.setTitle(currentString);
-			break;
-		case 5:
-			jData.setSalary(currentString);
-			break;
-		case 6:
-			jData.setDummy(currentString);
-			break;
-		case 7:
-			jData.setStart(currentString);
-			break;
-		case 8:
-			jData.setDuration(currentString);
-			break;
-		case 9:
-			jData.setJobtype(currentString);
-			break;
-		case 10:
-			jData.setApplications(currentString);
-			break;
-		case 11:
-			jData.setCompany(currentString);
-			break;
-
-		case 12:
-			jData.setContactPerson(currentString);
-			break;
-		case 13:
-			jData.setPhoneNumber(currentString);
-			break;
-		case 14:
-			jData.setFaxNumber(currentString);
-			break;
-		case 15:
-			jData.setLocation2(currentString);
-			break;
-		case 16:
-			jData.setLatitude(currentString);
-			break;
-		case 17:
-			jData.setLongitude(currentString);
-			break;
-		case 18:
-			jData.setFirstSeenDate(currentString);
-			break;
-		case 20:
-			jData.setLastSeenDate(currentString);
-			JSONTableContentHandler.serializeJSON(jData);
-			break;
-		case 19:
-			jData.setUrl(currentString);
-			break;
-
-		default:
-			break;
 		}
 
 	}
