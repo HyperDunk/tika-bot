@@ -190,29 +190,19 @@ public class JSONTableContentHandler extends DefaultHandler {
 	public void serializeJSON(JobsData job) {
 		actualCount++;
 		if (deduplication) {
-			if (dedupMap.contains(
+			String key = 
 					job.getTitle() 
 					+ job.getCompany()
 					+ job.getDepartment() 
 					+ job.getApplications()
 					+ job.getJobtype() 
-					+ job.getLocation()					
-					+ job.getLatitude()
-					+ job.getLongitude()
-					)) {
+					+ job.getLocation()
+					;
+			if (dedupMap.contains(key.toLowerCase())) {
 				outReport.println("Dup: " + fileName + ". Title: " + job.getTitle());
 				return;
 			} else {
-				dedupMap.add(
-						job.getTitle() 
-						+ job.getCompany()
-						+ job.getDepartment() 
-						+ job.getApplications()
-						+ job.getJobtype() 
-						+ job.getLocation()
-						+ job.getLatitude()
-						+ job.getLongitude()
-						);
+				dedupMap.add(key.toLowerCase());
 				totalCount++;
 			}			
 		} else {
