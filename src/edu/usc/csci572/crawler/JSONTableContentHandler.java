@@ -222,7 +222,7 @@ public class JSONTableContentHandler extends DefaultHandler {
 			} else {
 				dedupMap.add(key.toLowerCase());
 				totalCount++;
-				jDataList.add(jData);
+				jDataList.add(new JobsData(jData));
 			}
 		} else {
 			totalCount++;
