@@ -3,6 +3,35 @@ package edu.usc.csci572.crawler;
 public class JobsData {
 	private String date;
 
+	public JobsData(JobsData jData) {
+		// TODO Auto-generated constructor stub
+		this.applications = jData.getApplications();
+		this.company = jData.getCompany();
+		this.contactPerson = jData.getContactPerson();
+		this.date = jData.getDate();
+		this.department = jData.getDepartment();
+		this.dummy = jData.getDummy();
+		this.duration = jData.getDuration();
+		this.faxNumber = jData.getDuration();
+		this.firstSeenDate = jData.getFirstSeenDate();
+		this.jobtype = jData.getJobtype();
+		this.lastSeenDate = jData.getLastSeenDate();
+		this.latitude = jData.getLatitude();
+		this.location = jData.getLocation();
+		this.location2 = jData.getLocation2();
+		this.longitude = jData.getLongitude();
+		this.phoneNumber = jData.getPhoneNumber();
+		this.postedDate = jData.getPostedDate();
+		this.salary = jData.getSalary();
+		this.start = jData.getStart();
+		this.title = jData.getTitle();
+		this.url = jData.getUrl();
+	}
+
+	public JobsData() {
+		// TODO Auto-generated constructor stub
+	}
+
 	/**
 	 * @return the date
 	 */
