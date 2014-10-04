@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -18,6 +20,7 @@ import com.google.gson.GsonBuilder;
 
 public class JSONTableContentHandler extends DefaultHandler {
 	private JobsData jData;
+	private List<JobsData> jDataList;
 	private String currentElement = "";
 	private int tdCount;
 	private String currentTDElement = "";
@@ -37,11 +40,11 @@ public class JSONTableContentHandler extends DefaultHandler {
 			"jobtype", "applications", "company", "contactPerson",
 			"phoneNumber", "faxNumber", "location2", "latitude", "longitude",
 			"firstSeenDate", "url", "lastSeenDate" };
-	
+
 	public PrintWriter getOutReport() {
 		return this.outReport;
 	}
-	
+
 	public PrintWriter getOutCount() {
 		return this.outCount;
 	}
@@ -71,6 +74,7 @@ public class JSONTableContentHandler extends DefaultHandler {
 	@Override
 	public void startDocument() throws SAXException {
 		jData = new JobsData();
+		jDataList = new ArrayList<JobsData>();
 		i = 0;
 		actualCount = 0;
 	}
@@ -80,6 +84,24 @@ public class JSONTableContentHandler extends DefaultHandler {
 		outCount.println(fileName + "\nCount = " + i);
 		outCount.println("Actual Count in the file: " + actualCount);
 		outCount.println("Overall Total Count: " + totalCount + "\n");
+		if (deduplication) {
+
+			i++;
+			Writer writer;
+			try {
+				File file = new File(jsonOutputPath + "/" + fileName);
+				file.mkdirs();
+				writer = new FileWriter(jsonOutputPath + "/" + fileName + "/"
+						+ fileName + "-" + i + ".json");
+				Gson gson = new GsonBuilder().setPrettyPrinting().create();
+				gson.toJson(jDataList, writer);
+				writer.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
 	}
 
 	@Override
@@ -190,38 +212,35 @@ public class JSONTableContentHandler extends DefaultHandler {
 	public void serializeJSON(JobsData job) {
 		actualCount++;
 		if (deduplication) {
-			String key = 
-					job.getTitle() 
-					+ job.getCompany()
-					+ job.getDepartment() 
-					+ job.getApplications()
-					+ job.getJobtype() 
-					+ job.getLocation()
-					;
+			String key = job.getTitle() + job.getCompany()
+					+ job.getDepartment() + job.getApplications()
+					+ job.getJobtype() + job.getLocation();
 			if (dedupMap.contains(key.toLowerCase())) {
-				outReport.println("Dup: " + fileName + ". Title: " + job.getTitle());
+				outReport.println("Dup: " + fileName + ". Title: "
+						+ job.getTitle());
 				return;
 			} else {
 				dedupMap.add(key.toLowerCase());
 				totalCount++;
-			}			
+				jDataList.add(jData);
+			}
 		} else {
 			totalCount++;
-		}
 
-		i++;
-		Writer writer;
-		try {
-			File file = new File(jsonOutputPath + "/" + fileName);
-			file.mkdirs();
-			writer = new FileWriter(jsonOutputPath + "/" + fileName + "/"
-					+ fileName + "-" + i + ".json");
-			Gson gson = new GsonBuilder().setPrettyPrinting().create();
-			gson.toJson(job, writer);
-			writer.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			i++;
+			Writer writer;
+			try {
+				File file = new File(jsonOutputPath + "/" + fileName);
+				file.mkdirs();
+				writer = new FileWriter(jsonOutputPath + "/" + fileName + "/"
+						+ fileName + "-" + i + ".json");
+				Gson gson = new GsonBuilder().setPrettyPrinting().create();
+				gson.toJson(jData, writer);
+				writer.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 }
