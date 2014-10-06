@@ -24,9 +24,10 @@ public class JSONTableContentHandler extends DefaultHandler {
 	private String currentElement = "";
 	private int tdCount;
 	private String currentTDElement = "";
-	private PrintWriter outReport = null;
+	//private PrintWriter outReport = null;
 	private PrintWriter outCount = null;
-
+	public ArrayList<String> dedupFieldList = null;
+	
 	private static int i = 0;
 	public static long totalCount = 0;
 	public static long actualCount = 0;
@@ -34,6 +35,7 @@ public class JSONTableContentHandler extends DefaultHandler {
 	public static HashSet<String> dedupMap = new HashSet<String>();
 	public static String jsonOutputPath;
 	public static String fileName;
+	
 
 	private String[] colName = new String[] { "postedDate", "location",
 			"department", "title", "salary", "dummy", "start", "duration",
@@ -41,9 +43,9 @@ public class JSONTableContentHandler extends DefaultHandler {
 			"phoneNumber", "faxNumber", "location2", "latitude", "longitude",
 			"firstSeenDate", "url", "lastSeenDate" };
 
-	public PrintWriter getOutReport() {
+	/*public PrintWriter getOutReport() {
 		return this.outReport;
-	}
+	}*/
 
 	public PrintWriter getOutCount() {
 		return this.outCount;
@@ -52,8 +54,9 @@ public class JSONTableContentHandler extends DefaultHandler {
 	public JSONTableContentHandler() {
 		// TODO Auto-generated constructor stub
 
+		dedupFieldList = new ArrayList<String>();
 		try {
-			outReport = new PrintWriter("report.txt");
+			//outReport = new PrintWriter("report.txt");
 			outCount = new PrintWriter("count.txt");
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -81,26 +84,37 @@ public class JSONTableContentHandler extends DefaultHandler {
 
 	@Override
 	public void endDocument() throws SAXException {
-		outCount.println(fileName + "\nCount = " + i);
-		outCount.println("Actual Count in the file: " + actualCount);
-		outCount.println("Overall Total Count: " + totalCount + "\n");
 		if (deduplication) {
 
-			i++;
-			Writer writer;
+			/*Writer writer;
 			try {
 				File file = new File(jsonOutputPath + "/" + fileName);
 				file.mkdirs();
-				writer = new FileWriter(jsonOutputPath + "/" + fileName + "/"
-						+ fileName + "-" + i + ".json");
+				writer = new FileWriter(jsonOutputPath + "/agg-json/"
+						+ fileName + ".json");
 				Gson gson = new GsonBuilder().setPrettyPrinting().create();
 				gson.toJson(jDataList, writer);
 				writer.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			}*/
+			
+			for(JobsData jdata: jDataList) {
+				String key = jdata.getTitle() + jdata.getCompany()
+						+ jdata.getDepartment() + jdata.getApplications()
+						+ jdata.getJobtype() + jdata.getLocation();
+				if(!Deduplication.isSimilar(dedupFieldList, key.toLowerCase())) {
+					dedupFieldList.add(key.toLowerCase());
+					totalCount++;
+				}
 			}
 		}
+		
+		outCount.println(fileName + "\nCount = " + i);
+		outCount.println("Actual Count in the file: " + actualCount);
+		outCount.println("Overall Total Count: " + totalCount + "\n");
+		
 
 	}
 
@@ -212,16 +226,16 @@ public class JSONTableContentHandler extends DefaultHandler {
 	public void serializeJSON(JobsData job) {
 		actualCount++;
 		if (deduplication) {
-			String key = job.getTitle() + job.getCompany()
+			String key = job.getUrl()/*job.getTitle() + job.getCompany()
 					+ job.getDepartment() + job.getApplications()
-					+ job.getJobtype() + job.getLocation();
+					+ job.getJobtype() + job.getLocation()*/;
 			if (dedupMap.contains(key.toLowerCase())) {
-				outReport.println("Dup: " + fileName + ". Title: "
-						+ job.getTitle());
+				/*outReport.println("Dup: " + fileName + ". Title: "
+						+ job.getTitle());*/
 				return;
 			} else {
 				dedupMap.add(key.toLowerCase());
-				totalCount++;
+				//totalCount++;
 				jDataList.add(new JobsData(jData));
 			}
 		} else {

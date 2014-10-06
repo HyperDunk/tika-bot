@@ -127,7 +127,7 @@ public class Crawler {
 				convertTSVtoXHTMLandJSON(filePath, fileName, jsonContentHandler);
 			}
 		}
-		jsonHandler.getOutReport().close();
+		//jsonHandler.getOutReport().close();
 		jsonHandler.getOutCount().close();
 	}
 
