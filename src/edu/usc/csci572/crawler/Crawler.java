@@ -5,11 +5,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Calendar;
 import java.util.Locale;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.sax.SAXTransformerFactory;
@@ -31,6 +29,7 @@ public class Crawler {
 	String xhtmlOutputPath = null;
 	String jsonOutputPath = null;
 
+	/*Parses input arguments*/
 	public void parseCommand(String args[]) {
 
 		for (int i = 0; i < args.length; i = i + 2) {
@@ -54,6 +53,7 @@ public class Crawler {
 		}
 	}
 
+	/*reads tsv files and calls TSVParser*/
 	public void convertTSVtoXHTMLandJSON(String tsvFilePath, String fileName,
 			ContentHandler jsonContentHandler)
 			throws TransformerConfigurationException, IOException,
@@ -87,28 +87,7 @@ public class Crawler {
 		}
 	}
 
-	private void parseXHTML(InputStream is) {
-		// TODO Auto-generated method stub
-		JSONTableContentHandler jsonTableContentHandler = new JSONTableContentHandler();
-		SAXParserFactory spf = SAXParserFactory.newInstance();
-		spf.setNamespaceAware(true);
-		try {
-			SAXParser saxParser = spf.newSAXParser();
-			try {
-				saxParser.parse(is, jsonTableContentHandler);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} catch (ParserConfigurationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SAXException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
+	/*Main crawler method*/
 	public void crawl() throws TransformerConfigurationException, IOException,
 			SAXException, TikaException {
 
@@ -127,7 +106,8 @@ public class Crawler {
 				convertTSVtoXHTMLandJSON(filePath, fileName, jsonContentHandler);
 			}
 		}
-		jsonHandler.getOutReport().close();
+		jsonHandler.getOutCount().println(Calendar.getInstance().getTime());
+		//jsonHandler.getOutReport().close();
 		jsonHandler.getOutCount().close();
 	}
 

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.util.Calendar;
 import java.util.HashSet;
 
 import org.xml.sax.Attributes;
@@ -21,7 +22,7 @@ public class JSONTableContentHandler extends DefaultHandler {
 	private String currentElement = "";
 	private int tdCount;
 	private String currentTDElement = "";
-	private PrintWriter outReport = null;
+	//private PrintWriter outReport = null;
 	private PrintWriter outCount = null;
 
 	private static int i = 0;
@@ -38,9 +39,9 @@ public class JSONTableContentHandler extends DefaultHandler {
 			"phoneNumber", "faxNumber", "location2", "latitude", "longitude",
 			"firstSeenDate", "url", "lastSeenDate" };
 	
-	public PrintWriter getOutReport() {
+	/*public PrintWriter getOutReport() {
 		return this.outReport;
-	}
+	}*/
 	
 	public PrintWriter getOutCount() {
 		return this.outCount;
@@ -50,8 +51,9 @@ public class JSONTableContentHandler extends DefaultHandler {
 		// TODO Auto-generated constructor stub
 
 		try {
-			outReport = new PrintWriter("report.txt");
+			//outReport = new PrintWriter("report.txt");
 			outCount = new PrintWriter("count.txt");
+			outCount.println(Calendar.getInstance().getTime());
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -187,19 +189,49 @@ public class JSONTableContentHandler extends DefaultHandler {
 		}
 	}
 
+	/*Serializes the individual JSON*/
 	public void serializeJSON(JobsData job) {
 		actualCount++;
+		String title = job.getTitle(), 
+				company = job.getCompany(), 
+				department = job.getDepartment(), 
+				app = job.getApplications(), 
+				jobtype = job.getJobtype(), 
+				location = job.getLocation(), 
+				url = job.getUrl();
+		if(title.length() == 0) {
+			title = "e-title";
+		}
+		if(company.length() == 0) {
+			company = "e-comp";
+		}
+		if(department.length() == 0) {
+			department = "e-dept";
+		}
+		if(app.length() == 0) {
+			app = "e-app";
+		}
+		if(jobtype.length() == 0) {
+			jobtype = "e-jobtype";
+		}
+		if(location.length() == 0) {
+			location = "e-loc";
+		}
+		if(url.length() == 0) {
+			url = "e-url";
+		}
+		
 		if (deduplication) {
 			String key = 
-					job.getTitle() 
-					+ job.getCompany()
-					+ job.getDepartment() 
-					+ job.getApplications()
-					+ job.getJobtype() 
-					+ job.getLocation()
+					title 
+					+ company
+					+ department 
+					+ app
+					+ jobtype 
+					+ location
 					;
 			if (dedupMap.contains(key.toLowerCase())) {
-				outReport.println("Dup: " + fileName + ". Title: " + job.getTitle());
+				//outReport.println("Dup: " + fileName + ". Title: " + job.getTitle());
 				return;
 			} else {
 				dedupMap.add(key.toLowerCase());
@@ -219,7 +251,7 @@ public class JSONTableContentHandler extends DefaultHandler {
 			Gson gson = new GsonBuilder().setPrettyPrinting().create();
 			gson.toJson(job, writer);
 			writer.close();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
